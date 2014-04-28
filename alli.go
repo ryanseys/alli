@@ -37,17 +37,21 @@ func main() {
   if string(saved_username) == "" {
     print("Enter Github username: ")
     username, err = r.ReadString(delim)
+    username = strings.TrimSpace(username)
     check(err)
+
+    fmt.Printf("Would you like to save %s as the default? (y/n): ", username)
+    response, err := r.ReadString(delim)
+    check(err)
+    if response == "y\n" {
+      // write username to save
+      d1 := []byte(username)
+      ioutil.WriteFile(home + "/.alli", d1, 0644)
+    }
   } else {
-    username = string(saved_username)
+    username = strings.TrimSpace(string(saved_username))
     fmt.Printf("Using saved username: %s\n", username)
   }
-
-  username = strings.TrimSpace(username) // trim newline
-
-  // write username to save
-  d1 := []byte(username)
-  ioutil.WriteFile(home + "/.alli", d1, 0644)
 
   client := &http.Client{}
   req, _ := http.NewRequest("GET", "https://api.github.com/users/" + username + "/repos?per_page=100", nil)
