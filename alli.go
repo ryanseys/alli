@@ -8,6 +8,7 @@ import (
     "net/http"
     "strings"
     "encoding/json"
+    "strconv"
 )
 
 const delim = '\n'
@@ -55,8 +56,9 @@ func main() {
 
   client := &http.Client{}
   var anotherPage bool = true
+  pageNum := 1
   for anotherPage {
-    req, _ := http.NewRequest("GET", "https://api.github.com/users/" + username + "/repos?per_page=100", nil)
+    req, _ := http.NewRequest("GET", "https://api.github.com/users/" + username + "/repos?per_page=100&page=" + strconv.Itoa(pageNum), nil)
     req.Header.Set("Accept", "application/vnd.github.v3+json")
 
     if token != "" {
@@ -77,7 +79,7 @@ func main() {
     check(err)
 
     array := f.([]interface {})
-
+    pageNum++
     if(len(array) == 100) {
       anotherPage = true
     } else {
