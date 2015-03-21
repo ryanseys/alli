@@ -21,8 +21,8 @@ func check(e error) {
 
 func main() {
 
-	var token string = os.Getenv("GH_TOKEN_ALLI") // env var name
-	var home string = os.Getenv("HOME")           // env var name
+	var token = os.Getenv("GH_TOKEN_ALLI") // env var name
+	var home = os.Getenv("HOME")           // env var name
 
 	if token == "" {
 		fmt.Printf("No token found! Using highly rate-limited public access.\n")
@@ -33,9 +33,9 @@ func main() {
 	r := bufio.NewReader(os.Stdin)
 
 	var username string
-	saved_username, err := ioutil.ReadFile(home + "/.alli")
+	savedUsername, err := ioutil.ReadFile(home + "/.alli")
 
-	if string(saved_username) == "" {
+	if string(savedUsername) == "" {
 		print("Enter Github username: ")
 		username, err = r.ReadString(delim)
 		username = strings.TrimSpace(username)
@@ -50,13 +50,14 @@ func main() {
 			ioutil.WriteFile(home+"/.alli", d1, 0644)
 		}
 	} else {
-		username = strings.TrimSpace(string(saved_username))
+		username = strings.TrimSpace(string(savedUsername))
 		fmt.Printf("Using saved username: %s\n", username)
 	}
 
 	client := &http.Client{}
-	var anotherPage bool = true
+	anotherPage := true
 	pageNum := 1
+
 	for anotherPage {
 		req, _ := http.NewRequest("GET", "https://api.github.com/users/"+username+"/repos?per_page=100&page="+strconv.Itoa(pageNum), nil)
 		req.Header.Set("Accept", "application/vnd.github.v3+json")
@@ -90,10 +91,10 @@ func main() {
 
 		for i := range array {
 			repo := array[i].(map[string]interface{})
-			var countFloat float64 = repo["open_issues_count"].(float64)
-			var countInt int = int(countFloat)
+			countFloat := repo["open_issues_count"].(float64)
+			countInt := int(countFloat)
 			if countInt != 0 {
-				var name string = repo["full_name"].(string)
+				name := repo["full_name"].(string)
 				fmt.Printf("%s\n", name)
 
 				req, _ = http.NewRequest("GET", "https://api.github.com/repos/"+name+"/issues?state=open", nil)
@@ -113,12 +114,12 @@ func main() {
 				err = json.Unmarshal(byt, &g)
 				check(err)
 
-				issue_array := g.([]interface{})
+				issueArray := g.([]interface{})
 
-				for j := range issue_array {
-					issue := issue_array[j].(map[string]interface{})
-					var number int = int(issue["number"].(float64))
-					var title string = issue["title"].(string)
+				for j := range issueArray {
+					issue := issueArray[j].(map[string]interface{})
+					number := int(issue["number"].(float64))
+					title := issue["title"].(string)
 					fmt.Printf("#%d %s\n", number, title)
 				}
 				fmt.Printf("\n")
